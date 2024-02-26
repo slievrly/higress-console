@@ -202,8 +202,11 @@
     "columns": {
       "name": "Service Name",
       "namespace": "Namespace",
-      "endpoints": "Service Endpoints"
+      "endpoints": "Service Endpoints",
+      "apiList": "API List"
     },
+    "showApiList": "Show API List",
+    "apiImport": "API Import",
     "namePlaceholder": "Please input the service name.",
     "namespacePlaceholder": "Please input the namespace."
   },
