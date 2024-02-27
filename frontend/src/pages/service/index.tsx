@@ -8,6 +8,8 @@ import { Button, Col, Drawer, Form, Input, List, Row, Select, Space, Table } fro
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import RouteForm from '@/pages/route/components/RouteForm';
+import ApiList from '@/pages/service/components/ApiList';
+import ApiImport from '@/pages/service/components/ApiImport';
 
 const ServiceList: React.FC = () => {
   const { t } = useTranslation();
@@ -60,6 +62,7 @@ const ServiceList: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [apiListVisible, setApiListVisible] = useState<boolean>(false);
   const [apiImportVisible, setApiImportVisible] = useState<boolean>(false);
+  const [currentService, setCurrentService] = useState<Service | null>(null);
 
   const getServiceList = async (): Promise<Service[]> => getGatewayServices();
 
@@ -130,10 +133,12 @@ const ServiceList: React.FC = () => {
   };
 
   const showApiList = (record) => {
+    setCurrentService(record);
     setApiListVisible(true);
   };
 
   const hideApiList = () => {
+    setCurrentService(null);
     setApiListVisible(false);
   };
 
@@ -184,11 +189,7 @@ const ServiceList: React.FC = () => {
         onClose={hideApiList}
         open={apiListVisible}
       >
-        <List
-          bordered
-          dataSource={['111111', '222222', '333333']}
-          renderItem={(item) => <List.Item>{item}</List.Item>}
-        />
+        <ApiList value={currentService} />
       </Drawer>
 
       <Drawer
@@ -197,15 +198,14 @@ const ServiceList: React.FC = () => {
         width={660}
         onClose={hideApiImport}
         open={apiImportVisible}
+        extra={
+          <Space>
+            <Button>{t('misc.cancel')}</Button>
+            <Button type="primary">{t('misc.confirm')}</Button>
+          </Space>
+        }
       >
-        <Form>
-          <Form.Item label={t('service.columns.name')}>
-            <Select>
-              <Select.Option value="1">1</Select.Option>
-              <Select.Option value="2">2</Select.Option>
-            </Select>
-          </Form.Item>
-        </Form>
+        <ApiImport value={dataSource} />
       </Drawer>
     </PageContainer>
   );
