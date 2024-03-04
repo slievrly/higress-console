@@ -8,7 +8,7 @@ import { Button, Col, Drawer, Form, Input, List, Row, Select, Space, Table } fro
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import RouteForm from '@/pages/route/components/RouteForm';
-import ApiList from '@/pages/service/components/ApiList';
+import ApiDocs from '@/pages/service/components/ApiDocs';
 import ApiImport from '@/pages/service/components/ApiImport';
 
 const ServiceList: React.FC = () => {
@@ -41,14 +41,14 @@ const ServiceList: React.FC = () => {
       },
     },
     {
-      title: t('service.columns.apiList'),
-      key: 'apiList',
+      title: t('service.columns.apiDocs'),
+      key: 'apiDocs',
       width: 200,
       align: 'center',
       render: (_, record) => {
         return (
           <Space size="small">
-            <a onClick={() => showApiList(record)}>{t('service.showApiList')}</a>
+            <a onClick={() => showApiDocs(record)}>{t('service.showApiDocs')}</a>
           </Space>
         );
       },
@@ -132,12 +132,12 @@ const ServiceList: React.FC = () => {
     setApiImportVisible(false);
   };
 
-  const showApiList = (record) => {
+  const showApiDocs = (record) => {
     setCurrentService(record);
     setApiListVisible(true);
   };
 
-  const hideApiList = () => {
+  const hideApiDocs = () => {
     setCurrentService(null);
     setApiListVisible(false);
   };
@@ -183,13 +183,13 @@ const ServiceList: React.FC = () => {
       <Table loading={loading || isLoading} dataSource={dataSource} columns={columns} pagination={false} />
 
       <Drawer
-        title={t('service.showApiList')}
+        title={t('service.showApiDocs')}
         placement="right"
         width={660}
-        onClose={hideApiList}
+        onClose={hideApiDocs}
         open={apiListVisible}
       >
-        <ApiList value={currentService} />
+        <ApiDocs value={currentService} />
       </Drawer>
 
       <Drawer

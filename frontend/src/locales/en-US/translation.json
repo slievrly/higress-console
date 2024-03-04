@@ -203,9 +203,9 @@
       "name": "Service Name",
       "namespace": "Namespace",
       "endpoints": "Service Endpoints",
-      "apiList": "API List"
+      "apiDocs": "API Docs"
     },
-    "showApiList": "Show API List",
+    "showApiDocs": "Show API Docs",
     "apiImport": "API Import",
     "namePlaceholder": "Please input the service name.",
     "namespacePlaceholder": "Please input the namespace."
