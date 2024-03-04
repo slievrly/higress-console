@@ -12,11 +12,18 @@
  */
 package com.alibaba.higress.console.service;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
 import javax.annotation.PostConstruct;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import com.alibaba.higress.console.constant.CapabilityKey;
 import com.alibaba.higress.console.constant.SystemConfigKey;
@@ -24,10 +31,6 @@ import com.alibaba.higress.console.controller.dto.SystemInfo;
 import com.alibaba.higress.sdk.service.kubernetes.KubernetesClientService;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
@@ -40,14 +43,7 @@ public class SystemServiceImpl implements SystemService {
     static {
         String commitId = null;
         try {
-            Properties properties = new Properties();
-            properties.load(SystemServiceImpl.class.getResourceAsStream("/git.properties"));
-            commitId = properties.getProperty("git.commit.id");
-            if (commitId != null && commitId.length() > 7) {
-                commitId = commitId.substring(0, 7);
-            }
-        } catch (NullPointerException ignore){
-            log.warn("Could not find git.properties.");
+            commitId = loadGitCommitId();
         } catch (Exception ex) {
             log.error("Failed to load git properties.", ex);
         }
@@ -77,10 +73,7 @@ public class SystemServiceImpl implements SystemService {
     public void initialize() {
         fullVersion = StringUtils.isNotBlank(version) ? version : UNKNOWN;
         if (devBuild) {
-            fullVersion += "-dev";
-            if (!UNKNOWN.equals(COMMIT_ID)) {
-                fullVersion += "-" + COMMIT_ID;
-            }
+            fullVersion += "-dev-" + COMMIT_ID;
         }
 
         List<String> capabilities = new ArrayList<>();
@@ -93,5 +86,21 @@ public class SystemServiceImpl implements SystemService {
     @Override
     public SystemInfo getSystemInfo() {
         return new SystemInfo(fullVersion, capabilities);
+    }
+
+    private static String loadGitCommitId() throws IOException {
+        try (InputStream input = SystemServiceImpl.class.getResourceAsStream("/git.properties")) {
+            if (input == null) {
+                log.warn("git.properties not found.");
+                return null;
+            }
+            Properties properties = new Properties();
+            properties.load(input);
+            String commitId = properties.getProperty("git.commit.id");
+            if (commitId != null && commitId.length() > 7) {
+                commitId = commitId.substring(0, 7);
+            }
+            return commitId;
+        }
     }
 }

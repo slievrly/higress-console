@@ -202,8 +202,11 @@
     "columns": {
       "name": "服务名称",
       "namespace": "命名空间",
-      "endpoints": "服务地址"
+      "endpoints": "服务地址",
+      "apiList": "API列表"
     },
+    "showApiList": "查看API列表",
+    "apiImport": "API导入",
     "namePlaceholder": "请输入服务名称",
     "namespacePlaceholder": "请输入命名空间"
   },
