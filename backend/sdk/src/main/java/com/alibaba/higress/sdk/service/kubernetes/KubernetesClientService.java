@@ -12,10 +12,6 @@
  */
 package com.alibaba.higress.sdk.service.kubernetes;
 
-import static com.alibaba.higress.sdk.service.kubernetes.KubernetesUtil.buildDomainLabelSelector;
-import static com.alibaba.higress.sdk.service.kubernetes.KubernetesUtil.buildLabelSelector;
-import static com.alibaba.higress.sdk.service.kubernetes.KubernetesUtil.joinLabelSelectors;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -28,10 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
@@ -46,8 +38,8 @@ import com.alibaba.higress.sdk.service.kubernetes.crd.wasm.V1alpha1WasmPlugin;
 import com.alibaba.higress.sdk.service.kubernetes.crd.wasm.V1alpha1WasmPluginList;
 import com.alibaba.higress.sdk.service.kubernetes.model.IstioEndpointShard;
 import com.alibaba.higress.sdk.service.kubernetes.model.RegistryzService;
-import com.google.common.net.HttpHeaders;
 
+import com.google.common.net.HttpHeaders;
 import io.kubernetes.client.common.KubernetesObject;
 import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
@@ -70,6 +62,13 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import static com.alibaba.higress.sdk.service.kubernetes.KubernetesUtil.buildDomainLabelSelector;
+import static com.alibaba.higress.sdk.service.kubernetes.KubernetesUtil.buildLabelSelector;
+import static com.alibaba.higress.sdk.service.kubernetes.KubernetesUtil.joinLabelSelectors;
 
 @Slf4j
 public class KubernetesClientService {
@@ -168,6 +167,20 @@ public class KubernetesClientService {
             }
         }
         return null;
+    }
+
+    public String getApiDocByName(String name) throws IOException {
+        String result = null;
+        Request request = buildControllerRequest("/debug/apiDocz?hostname=" + name);
+        log.info("gatewayApiDocs url {}", request.url());
+        try (Response response = okHttpClient.newCall(request).execute()) {
+            if (response.code() == 200) {
+                if (response.body() != null) {
+                    result = new String(response.body().bytes());
+                }
+            }
+        }
+        return result;
     }
 
     public Map<String, Map<String, IstioEndpointShard>> gatewayServiceEndpoint() throws IOException {

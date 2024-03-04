@@ -12,11 +12,11 @@
  */
 package com.alibaba.higress.sdk.service;
 
+import java.io.IOException;
+
 import com.alibaba.higress.sdk.config.HigressServiceConfig;
 import com.alibaba.higress.sdk.service.kubernetes.KubernetesClientService;
 import com.alibaba.higress.sdk.service.kubernetes.KubernetesModelConverter;
-
-import java.io.IOException;
 
 /**
  * @author CH3CHO
@@ -28,6 +28,8 @@ class HigressServiceProviderImpl implements HigressServiceProvider {
     private final DomainService domainService;
     private final RouteService routeService;
     private final ServiceService serviceService;
+
+    private final ApiDocService apiDocService;
     private final ServiceSourceService serviceSourceService;
     private final TlsCertificateService tlsCertificateService;
     private final WasmPluginService wasmPluginService;
@@ -37,6 +39,7 @@ class HigressServiceProviderImpl implements HigressServiceProvider {
         kubernetesClientService = new KubernetesClientService(config);
         kubernetesModelConverter = new KubernetesModelConverter(kubernetesClientService);
         serviceService = new ServiceServiceImpl(kubernetesClientService);
+        apiDocService = new ApiDocServiceImpl(kubernetesClientService);
         serviceSourceService = new ServiceSourceServiceImpl(kubernetesClientService, kubernetesModelConverter);
         tlsCertificateService = new TlsCertificateServiceImpl(kubernetesClientService, kubernetesModelConverter);
         wasmPluginService = new WasmPluginServiceImpl(kubernetesClientService, kubernetesModelConverter);
@@ -73,6 +76,10 @@ class HigressServiceProviderImpl implements HigressServiceProvider {
         return serviceService;
     }
 
+    @Override
+    public ApiDocService apiDocService() {
+        return apiDocService;
+    }
     @Override
     public ServiceSourceService serviceSourceService() {
         return serviceSourceService;

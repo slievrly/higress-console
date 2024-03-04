@@ -37,6 +37,8 @@ public interface HigressServiceProvider {
 
     ServiceService serviceService();
 
+    ApiDocService apiDocService();
+
     ServiceSourceService serviceSourceService();
 
     TlsCertificateService tlsCertificateService();

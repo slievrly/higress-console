@@ -16,13 +16,10 @@ import java.io.IOException;
 
 import javax.annotation.PostConstruct;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
 import com.alibaba.higress.console.constant.SystemConfigKey;
 import com.alibaba.higress.sdk.config.HigressServiceConfig;
 import com.alibaba.higress.sdk.constant.HigressConstants;
+import com.alibaba.higress.sdk.service.ApiDocService;
 import com.alibaba.higress.sdk.service.DomainService;
 import com.alibaba.higress.sdk.service.HigressServiceProvider;
 import com.alibaba.higress.sdk.service.RouteService;
@@ -33,6 +30,10 @@ import com.alibaba.higress.sdk.service.WasmPluginInstanceService;
 import com.alibaba.higress.sdk.service.WasmPluginService;
 import com.alibaba.higress.sdk.service.kubernetes.KubernetesClientService;
 import com.alibaba.higress.sdk.service.kubernetes.KubernetesModelConverter;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class SdkConfig {
@@ -73,7 +74,7 @@ public class SdkConfig {
         HigressServiceConfig config = HigressServiceConfig.builder().withIngressClassName(controllerIngressClassName)
             .withControllerNamespace(controllerNamespace).withControllerServiceName(controllerServiceName)
             .withControllerServiceHost(controllerServiceHost).withControllerServicePort(controllerServicePort)
-            .withControllerJwtPolicy(controllerJwtPolicy).withControllerAccessToken(controllerAccessToken).build();
+            .withControllerJwtPolicy(controllerJwtPolicy).withControllerAccessToken(controllerAccessToken).withKubeConfigPath(kubeConfig).build();
         serviceProvider = HigressServiceProvider.create(config);
     }
 
@@ -100,6 +101,11 @@ public class SdkConfig {
     @Bean
     public ServiceService serviceService() {
         return serviceProvider.serviceService();
+    }
+
+    @Bean
+    public ApiDocService apiDocService(){
+        return serviceProvider.apiDocService();
     }
 
     @Bean
