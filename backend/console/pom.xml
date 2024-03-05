@@ -113,15 +113,15 @@
 							<arguments>install</arguments>
 						</configuration>
 					</execution>
-					<execution>
-						<id>update caniuse db</id>
-						<goals>
-							<goal>npx</goal>
-						</goals>
-						<configuration>
-							<arguments>browserslist@latest --update-db</arguments>
-						</configuration>
-					</execution>
+<!--					<execution>-->
+<!--						<id>update caniuse db</id>-->
+<!--						<goals>-->
+<!--							<goal>npx</goal>-->
+<!--						</goals>-->
+<!--						<configuration>-->
+<!--							<arguments>browserslist@latest &#45;&#45;update-db</arguments>-->
+<!--						</configuration>-->
+<!--					</execution>-->
 					<execution>
 						<id>npm build</id>
 						<goals>
