@@ -20,7 +20,33 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ApiDoc {
-    private String host;
-    private int status;
-    private String apiDoc;
+    private String path;
+    private MethodType method;
+    private String signature;
+    private String parameter;
+    private String description;
+    private String response;
+
+    public ApiDoc simpleCopy() {
+        ApiDoc target = new ApiDoc();
+        target.setPath(this.path);
+        return target;
+    }
+
+    public enum MethodType {
+        GET,
+        POST,
+        PUT,
+        DELETE,
+        ALL;
+
+        public MethodType getTypeByName(String name) {
+            for (MethodType type : MethodType.values()) {
+                if (type.name().equalsIgnoreCase(name)) {
+                    return type;
+                }
+            }
+            return ALL;
+        }
+    }
 }

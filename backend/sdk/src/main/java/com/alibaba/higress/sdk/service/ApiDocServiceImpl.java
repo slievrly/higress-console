@@ -12,19 +12,28 @@
  */
 package com.alibaba.higress.sdk.service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.higress.sdk.exception.BusinessException;
 import com.alibaba.higress.sdk.exception.NotFoundException;
 import com.alibaba.higress.sdk.model.ApiDoc;
+import com.alibaba.higress.sdk.model.ApiDoc.MethodType;
 import com.alibaba.higress.sdk.service.kubernetes.KubernetesClientService;
 
 import io.kubernetes.client.openapi.models.V1ConfigMap;
 import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.parser.core.models.ParseOptions;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public class ApiDocServiceImpl implements ApiDocService {
@@ -38,7 +47,7 @@ public class ApiDocServiceImpl implements ApiDocService {
     }
 
     @Override
-    public OpenAPI getApiDoc(String hostName) {
+    public List<ApiDoc> getApiDoc(String hostName) {
         String result = null;
         try {
             V1ConfigMap configMap = kubernetesClientService.readConfigMap(CONFIG_MAP_NAME);
@@ -61,7 +70,7 @@ public class ApiDocServiceImpl implements ApiDocService {
             if (null == apiDoc) {
                 throw new NotFoundException("no available API");
             }
-            return parseApiDocs(apiDoc);
+            return parseApiDocList(parseApiDocs(apiDoc));
         } catch (Exception e) {
             if (e instanceof NotFoundException) {
                 throw (NotFoundException)e;
@@ -84,4 +93,56 @@ public class ApiDocServiceImpl implements ApiDocService {
         }
         return openAPI;
     }
+
+    private List<ApiDoc> parseApiDocList(OpenAPI openAPI) {
+        if (openAPI.getPaths().size() == 0) {
+            return null;
+        }
+        List<ApiDoc> apiDocs = new ArrayList<>();
+        for (Map.Entry<String, PathItem> entry : openAPI.getPaths().entrySet()) {
+            ApiDoc apiDoc = new ApiDoc();
+            String path = entry.getKey();
+            apiDoc.setPath(path);
+            PathItem pathItem = entry.getValue();
+            if (pathItem.getGet() != null) {
+                ApiDoc newApiDoc = apiDoc.simpleCopy();
+                newApiDoc.setMethod(MethodType.GET);
+                setOperationAttr(newApiDoc, pathItem.getGet());
+                apiDocs.add(newApiDoc);
+            }
+            if (pathItem.getPost() != null) {
+                ApiDoc newApiDoc = apiDoc.simpleCopy();
+                newApiDoc.setMethod(MethodType.POST);
+                setOperationAttr(newApiDoc, pathItem.getPost());
+                apiDocs.add(newApiDoc);
+            }
+            if (pathItem.getPut() != null) {
+                ApiDoc newApiDoc = apiDoc.simpleCopy();
+                newApiDoc.setMethod(MethodType.PUT);
+                setOperationAttr(newApiDoc, pathItem.getPut());
+                apiDocs.add(newApiDoc);
+            }
+            if (pathItem.getDelete() != null) {
+                ApiDoc newApiDoc = apiDoc.simpleCopy();
+                newApiDoc.setMethod(MethodType.DELETE);
+                setOperationAttr(newApiDoc, pathItem.getDelete());
+                apiDocs.add(newApiDoc);
+            }
+
+        }
+        return apiDocs;
+    }
+
+    private void setOperationAttr(ApiDoc apiDoc, Operation operation) {
+        apiDoc.setDescription(operation.getDescription());
+        apiDoc.setSignature(operation.getOperationId());
+        if (CollectionUtils.isNotEmpty(operation.getParameters())) {
+            apiDoc.setParameter(JSON.toJSONString(operation.getParameters()));
+        }
+        if (MapUtils.isNotEmpty(operation.getResponses())) {
+            apiDoc.setResponse(JSON.toJSONString(operation.getResponses()));
+        }
+        apiDoc.setDescription(operation.getSummary());
+    }
+
 }

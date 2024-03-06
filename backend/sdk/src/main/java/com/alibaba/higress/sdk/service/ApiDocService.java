@@ -12,9 +12,10 @@
  */
 package com.alibaba.higress.sdk.service;
 
+import java.util.List;
 
-import io.swagger.v3.oas.models.OpenAPI;
+import com.alibaba.higress.sdk.model.ApiDoc;
 
 public interface ApiDocService {
-    OpenAPI getApiDoc(String hostName);
+    List<ApiDoc> getApiDoc(String hostName);
 }

@@ -12,14 +12,16 @@
  */
 package com.alibaba.higress.console.controller;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 import javax.validation.constraints.NotBlank;
 
 import com.alibaba.higress.console.controller.dto.Response;
 import com.alibaba.higress.console.controller.util.ControllerUtil;
+import com.alibaba.higress.sdk.model.ApiDoc;
 import com.alibaba.higress.sdk.service.ApiDocService;
 
-import io.swagger.v3.oas.models.OpenAPI;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,7 +38,7 @@ public class ApiDocController {
     private ApiDocService apiDocService;
 
     @GetMapping(value = "/{hostname}")
-    public ResponseEntity<Response<OpenAPI>> get(@PathVariable("hostname") @NotBlank String hostname) {
+    public ResponseEntity<Response<List<ApiDoc>>> get(@PathVariable("hostname") @NotBlank String hostname) {
         return ControllerUtil.buildResponseEntity(apiDocService.getApiDoc(hostname));
     }
 }
