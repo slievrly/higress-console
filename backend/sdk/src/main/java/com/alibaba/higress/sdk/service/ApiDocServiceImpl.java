@@ -12,10 +12,18 @@
  */
 package com.alibaba.higress.sdk.service;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.higress.sdk.exception.BusinessException;
+import com.alibaba.higress.sdk.exception.NotFoundException;
+import com.alibaba.higress.sdk.model.ApiDoc;
 import com.alibaba.higress.sdk.service.kubernetes.KubernetesClientService;
 
 import io.kubernetes.client.openapi.models.V1ConfigMap;
+import io.swagger.parser.OpenAPIParser;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.parser.core.models.ParseOptions;
+import io.swagger.v3.parser.core.models.SwaggerParseResult;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public class ApiDocServiceImpl implements ApiDocService {
@@ -29,22 +37,46 @@ public class ApiDocServiceImpl implements ApiDocService {
     }
 
     @Override
-    public String getApiDoc(String hostName) {
+    public OpenAPI getApiDoc(String hostName) {
         String result = null;
         try {
             V1ConfigMap configMap = kubernetesClientService.readConfigMap(CONFIG_MAP_NAME);
             if (null != configMap) {
-                if (hostName.contains(":")) {
-                    hostName = hostName.replaceAll(":", "-");
+                if (configMap.getData() != null) {
+                    result = configMap.getData().get(hostName.replaceAll(":", "-"));
                 }
-                result = configMap.getData().get(hostName);
             }
-            if (StringUtils.isNotBlank(result)) {
-                return result;
+            if (StringUtils.isBlank(result)) {
+                result = kubernetesClientService.getApiDocByName(hostName);
             }
-            return kubernetesClientService.getApiDocByName(hostName);
+            if (StringUtils.isBlank(result)) {
+                return null;
+            }
+            ApiDoc apiDoc = JSON.parseObject(result, ApiDoc.class);
+            if (apiDoc.getStatus() != 200) {
+                throw new NotFoundException("no available API");
+            }
+            return parseApiDocs(apiDoc);
         } catch (Exception e) {
+            if (e instanceof NotFoundException) {
+                throw (NotFoundException)e;
+            }
             throw new BusinessException("Error occurs when get api-docs.", e);
         }
+    }
+
+    private OpenAPI parseApiDocs(ApiDoc apiDoc) {
+        ParseOptions parseOptions = new ParseOptions();
+        parseOptions.setResolve(true);
+        parseOptions.setResolveFully(true);
+        SwaggerParseResult result = new OpenAPIParser().readContents(apiDoc.getApiDoc(), null, parseOptions);
+        if (CollectionUtils.isNotEmpty(result.getMessages())) {
+            throw new BusinessException("Error occurs when parse api-docs: " + result.getMessages());
+        }
+        OpenAPI openAPI = result.getOpenAPI();
+        if (openAPI == null) {
+            throw new BusinessException("Error occurs when parse api-docs: openAPI is null");
+        }
+        return openAPI;
     }
 }

@@ -10,11 +10,17 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package com.alibaba.higress.sdk.service;
+package com.alibaba.higress.sdk.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import io.swagger.v3.oas.models.OpenAPI;
-
-public interface ApiDocService {
-    OpenAPI getApiDoc(String hostName);
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class ApiDoc {
+    private String host;
+    private int status;
+    private String apiDoc;
 }

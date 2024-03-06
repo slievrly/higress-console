@@ -62,6 +62,7 @@
 		<k8s-client.version>17.0.0</k8s-client.version>
 		<bouncycastle.version>1.46</bouncycastle.version>
 		<openapi4j.version>1.0.7</openapi4j.version>
+		<swagger-parser.version>2.1.20</swagger-parser.version>
 
 		<pmd-plugin.version>3.20.0</pmd-plugin.version>
 		<frontend-plugin.version>1.12.1</frontend-plugin.version>
@@ -131,6 +132,11 @@
 				<groupId>org.openapi4j</groupId>
 				<artifactId>openapi-parser</artifactId>
 				<version>${openapi4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.swagger.parser.v3</groupId>
+				<artifactId>swagger-parser</artifactId>
+				<version>${swagger-parser.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

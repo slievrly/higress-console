@@ -4,7 +4,7 @@ import { addGatewayRoute, getGatewayServices, updateGatewayRoute } from '@/servi
 import { RedoOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import { useRequest } from 'ahooks';
-import { Button, Col, Drawer, Form, Input, List, Row, Select, Space, Table } from 'antd';
+import { Button, Col, Drawer, Form, Input, List, message, Row, Select, Space, Table } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import RouteForm from '@/pages/route/components/RouteForm';
@@ -149,12 +149,13 @@ const ServiceList: React.FC = () => {
     try {
       const values = formRef.current && (await formRef.current.handleSubmit());
       const { hostname, file } = values;
-      await uploadApiDoc({
+      const result = await uploadApiDoc({
         hostname,
         file,
       });
       hideApiImport();
       formRef.current.reset();
+      message.success('上传成功');
     } catch (errInfo) {
       // eslint-disable-next-line no-console
       console.log('upload api-doc failed:', errInfo);
