@@ -23,6 +23,7 @@ import com.alibaba.higress.sdk.service.kubernetes.KubernetesClientService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.kubernetes.client.openapi.models.V1ConfigMap;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -46,8 +47,11 @@ public class UploadDocController {
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Response<String>> upload(@RequestParam(name = "file") MultipartFile file,
                                                    @RequestParam(name = "hostname") String hostname) {
-        if (file.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.failure("file is empty"));
+        if (file.isEmpty()|| StringUtils.isEmpty(hostname)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.failure("file or hostname is empty"));
+        }
+        if (hostname.contains(":")) {
+            hostname = hostname.replace(':', '-');
         }
         try {
             byte[] bytes = file.getBytes();
@@ -57,6 +61,7 @@ public class UploadDocController {
                 if (null == configMap) {
                     V1ConfigMap newConfigMap = new V1ConfigMap();
                     V1ObjectMeta metadata = new V1ObjectMeta();
+                    metadata.setName(CONFIG_MAP_NAME);
                     newConfigMap.setMetadata(metadata);
                     Map<String, String> dataMap = new HashMap<String, String>();
                     dataMap.put(hostname, jsonStr);
