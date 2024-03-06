@@ -47,11 +47,11 @@ public class UploadDocController {
     @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Response<String>> upload(@RequestParam(name = "file") MultipartFile file,
                                                    @RequestParam(name = "hostname") String hostname) {
-        if (file.isEmpty()|| StringUtils.isEmpty(hostname)) {
+        if (file.isEmpty() || StringUtils.isEmpty(hostname)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.failure("file or hostname is empty"));
         }
         if (hostname.contains(":")) {
-            hostname = hostname.replace(':', '-');
+            hostname = hostname.replaceAll(":", "-");
         }
         try {
             byte[] bytes = file.getBytes();

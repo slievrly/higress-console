@@ -34,6 +34,9 @@ public class ApiDocServiceImpl implements ApiDocService {
         try {
             V1ConfigMap configMap = kubernetesClientService.readConfigMap(CONFIG_MAP_NAME);
             if (null != configMap) {
+                if (hostName.contains(":")) {
+                    hostName = hostName.replaceAll(":", "-");
+                }
                 result = configMap.getData().get(hostName);
             }
             if (StringUtils.isNotBlank(result)) {
