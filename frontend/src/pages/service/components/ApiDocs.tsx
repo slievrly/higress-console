@@ -28,7 +28,6 @@ const ApiDocs: React.FC = ({ value }) => {
         if (path.delete) {
           methods.push('delete');
         }
-        console.log(methods);
         records.push({
           key,
           path: key,
