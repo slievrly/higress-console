@@ -13,6 +13,7 @@
 package com.alibaba.higress.sdk.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.higress.sdk.exception.BusinessException;
 import com.alibaba.higress.sdk.exception.NotFoundException;
 import com.alibaba.higress.sdk.model.ApiDoc;
@@ -52,8 +53,12 @@ public class ApiDocServiceImpl implements ApiDocService {
             if (StringUtils.isBlank(result)) {
                 return null;
             }
-            ApiDoc apiDoc = JSON.parseObject(result, ApiDoc.class);
-            if (apiDoc.getStatus() != 200) {
+            String apiDoc = result;
+            JSONObject apiObj = JSON.parseObject(result);
+            if (apiObj.containsKey("apiDoc")) {
+                apiDoc = apiObj.getString("apiDoc");
+            }
+            if (null == apiDoc) {
                 throw new NotFoundException("no available API");
             }
             return parseApiDocs(apiDoc);
@@ -65,11 +70,11 @@ public class ApiDocServiceImpl implements ApiDocService {
         }
     }
 
-    private OpenAPI parseApiDocs(ApiDoc apiDoc) {
+    private OpenAPI parseApiDocs(String apiDoc) {
         ParseOptions parseOptions = new ParseOptions();
         parseOptions.setResolve(true);
         parseOptions.setResolveFully(true);
-        SwaggerParseResult result = new OpenAPIParser().readContents(apiDoc.getApiDoc(), null, parseOptions);
+        SwaggerParseResult result = new OpenAPIParser().readContents(apiDoc, null, parseOptions);
         if (CollectionUtils.isNotEmpty(result.getMessages())) {
             throw new BusinessException("Error occurs when parse api-docs: " + result.getMessages());
         }
