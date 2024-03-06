@@ -16,6 +16,7 @@ import com.alibaba.higress.sdk.exception.BusinessException;
 import com.alibaba.higress.sdk.service.kubernetes.KubernetesClientService;
 
 import io.kubernetes.client.openapi.models.V1ConfigMap;
+import org.apache.commons.lang3.StringUtils;
 
 public class ApiDocServiceImpl implements ApiDocService {
 
@@ -29,10 +30,14 @@ public class ApiDocServiceImpl implements ApiDocService {
 
     @Override
     public String getApiDoc(String hostName) {
+        String result = null;
         try {
             V1ConfigMap configMap = kubernetesClientService.readConfigMap(CONFIG_MAP_NAME);
             if (null != configMap) {
-                return configMap.getData().get(hostName);
+                result = configMap.getData().get(hostName);
+            }
+            if (StringUtils.isNotBlank(result)) {
+                return result;
             }
             return kubernetesClientService.getApiDocByName(hostName);
         } catch (Exception e) {
