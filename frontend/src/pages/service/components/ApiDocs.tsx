@@ -1,11 +1,9 @@
-import { Table } from 'antd';
-import React, { useEffect, useState } from 'react';
-import { useRequest } from 'ahooks';
-import { getApiDocs } from '@/services/api-doc';
-import { ApiDoc } from '@/interfaces/api-doc';
-import { serviceToString } from '@/interfaces/service';
-import { ColumnsType } from 'antd/lib/table';
-import { get } from 'axios';
+import {Table} from 'antd';
+import React, {useEffect, useState} from 'react';
+import {useRequest} from 'ahooks';
+import {getApiDocs} from '@/services/api-doc';
+import {serviceToString} from '@/interfaces/service';
+import {ColumnsType} from 'antd/lib/table';
 
 const ApiDocs: React.FC = ({ value }) => {
   const [dataSource, setDataSource] = useState([]);
@@ -13,26 +11,17 @@ const ApiDocs: React.FC = ({ value }) => {
     manual: true,
     onSuccess: (res) => {
       const records = [];
-      for (let key in res.paths) {
-        const path = res.paths[key];
-        const methods: string[] = [];
-        if (path.get) {
-          methods.push('get');
-        }
-        if (path.post) {
-          methods.push('post');
-        }
-        if (path.put) {
-          methods.push('put');
-        }
-        if (path.delete) {
-          methods.push('delete');
-        }
-        records.push({
-          key,
-          path: key,
-          methods: methods.join(','),
-        });
+      {
+        res.map(data => (
+            records.push({
+              path: data.path,
+              method: data.method,
+              signature: data.signature,
+              parameter: data.parameter,
+              response: data.response,
+              description: data.description,
+            })
+        ));
       }
       setDataSource(records);
     },
@@ -45,9 +34,29 @@ const ApiDocs: React.FC = ({ value }) => {
       key: 'path',
     },
     {
-      title: 'methods',
-      dataIndex: 'methods',
-      key: 'methods',
+      title: 'method',
+      dataIndex: 'method',
+      key: 'method',
+    },
+    {
+      title: 'signature',
+      dataIndex: 'signature',
+      key: 'signature',
+    },
+    {
+      title: 'parameter',
+      dataIndex: 'parameter',
+      key: 'parameter',
+    },
+    {
+      title: 'response',
+      dataIndex: 'response',
+      key: 'response',
+    },
+    {
+      title: 'description',
+      dataIndex: 'description',
+      key: 'description',
     },
   ];
 
