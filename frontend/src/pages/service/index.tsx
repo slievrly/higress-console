@@ -1,6 +1,6 @@
 import { OptionItem } from '@/interfaces/common';
 import { Service, serviceToString } from '@/interfaces/service';
-import { getGatewayServices } from '@/services';
+import { addGatewayRoute, getGatewayServices, updateGatewayRoute } from '@/services';
 import { RedoOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-layout';
 import { useRequest } from 'ahooks';
@@ -10,6 +10,8 @@ import { useTranslation } from 'react-i18next';
 import RouteForm from '@/pages/route/components/RouteForm';
 import ApiDocs from '@/pages/service/components/ApiDocs';
 import ApiImport from '@/pages/service/components/ApiImport';
+import { Route } from '@/interfaces/route';
+import { uploadApiDoc } from '@/services/api-import';
 
 const ServiceList: React.FC = () => {
   const { t } = useTranslation();
@@ -63,6 +65,7 @@ const ServiceList: React.FC = () => {
   const [apiListVisible, setApiListVisible] = useState<boolean>(false);
   const [apiImportVisible, setApiImportVisible] = useState<boolean>(false);
   const [currentService, setCurrentService] = useState<Service | null>(null);
+  const formRef = useRef(null);
 
   const getServiceList = async (): Promise<Service[]> => getGatewayServices();
 
@@ -142,6 +145,26 @@ const ServiceList: React.FC = () => {
     setApiListVisible(false);
   };
 
+  const handleDrawerOK = async () => {
+    try {
+      const values = formRef.current && (await formRef.current.handleSubmit());
+      const { hostname, file } = values;
+      await uploadApiDoc({
+        hostname,
+        file,
+      });
+      hideApiImport();
+      formRef.current.reset();
+    } catch (errInfo) {
+      // eslint-disable-next-line no-console
+      console.log('upload api-doc failed:', errInfo);
+    }
+  };
+
+  const handleDrawerCancel = () => {
+    hideApiImport();
+  };
+
   return (
     <PageContainer>
       <Form
@@ -200,12 +223,14 @@ const ServiceList: React.FC = () => {
         open={apiImportVisible}
         extra={
           <Space>
-            <Button>{t('misc.cancel')}</Button>
-            <Button type="primary">{t('misc.confirm')}</Button>
+            <Button onClick={handleDrawerCancel}>{t('misc.cancel')}</Button>
+            <Button type="primary" onClick={handleDrawerOK}>
+              {t('misc.confirm')}
+            </Button>
           </Space>
         }
       >
-        <ApiImport value={dataSource} />
+        <ApiImport ref={formRef} value={dataSource} />
       </Drawer>
     </PageContainer>
   );
